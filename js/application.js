@@ -16,11 +16,11 @@ function init()
 	{
 		if(isPregame_)
 		{
+			var arr = shuffle(itemArr_);
+
 			for(var i = 0; i < itemCount_; i++)
 			{
-				var num = getRandomNumberFromArr_();
-
-				createItems_(itemArr_[num]);
+				createItems_(arr[i]);
 			}
 		}
 	}
@@ -39,6 +39,26 @@ function init()
 		item.classList.add("game-item", param);
 
 		gameContainer_.appendChild(item);
+	}
+
+	/*
+	 * src: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array?noredirect=1&lq=1
+	 */
+	function shuffle(array)
+	{
+		var currIndex = array.length, tempVal, ranIndex;
+
+		while(0 != currIndex)
+		{
+			ranIndex = Math.floor(Math.random() * currIndex);
+			currIndex -= 1;
+
+			tempVal = array[currIndex];
+			array[currIndex] = array[ranIndex];
+			array[ranIndex] = tempVal;
+		}
+
+		return array;
 	}
 
 	getItemsFromArray_();
