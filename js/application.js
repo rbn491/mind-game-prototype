@@ -12,7 +12,8 @@ function init()
 		"yellow", "grey", "pink", "lime", "lightblue"
 	];
 
-	var savedItems_, checkingArr_ =  [];
+	var savedItems_ =  [];
+	var checkingArr_ = [];
 
 
 
@@ -75,7 +76,10 @@ function init()
 		item.classList.add("game-item", param);
 		item.dataset.itemId = param;
 
-		itemWrapperShow_.appendChild(item);
+		if(isPregame_)
+			itemWrapperShow_.appendChild(item);
+		else
+			itemWrapperPlay_.appendChild(item);
 	}
 
 
