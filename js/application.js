@@ -1,10 +1,10 @@
 function init()
 {
 	var itemCount_ = 3;
-	var pregameInterval_ = 5000;
+	var pregameTimer_ = null;
+	var pregameTimeout_ = 5000;
 	var gameContainer_ = document.querySelector(".game-container");
-	var itemWrapperShow_ = document.querySelector(".item-wrapper.show");
-	var itemWrapperPlay_ = document.querySelector(".item-wrapper.play");
+	var itemWrapper_ = document.querySelector(".item-wrapper");
 	var isPregame_ = gameContainer_.classList.contains("pregame");
 
 	var itemArr_ = [
@@ -14,6 +14,7 @@ function init()
 
 	var savedItems_ =  [];
 	var checkingArr_ = [];
+	var isEqual_ = false;
 
 
 
@@ -26,8 +27,9 @@ function init()
 		{
 			for(var i = 0; i < count; i++)
 			{
-				createItems_(arr[i]);
+				createItems_(arr[i], "intro");
 				savedItems_.push(arr[i]);
+				savedItems_.sort();
 			}
 		}
 		else
@@ -70,16 +72,43 @@ function init()
 	}
 
 
-	function createItems_(param)
+	function createItems_(param, intro)
 	{
 		var item = document.createElement("div");
-		item.classList.add("game-item", param);
+
+		if(intro != null)
+			item.classList.add("game-item", intro, param);
+		else
+			item.classList.add("game-item", param);
+
 		item.dataset.itemId = param;
 
-		if(isPregame_)
-			itemWrapperShow_.appendChild(item);
+		itemWrapper_.appendChild(item);
+	}
+
+
+	function deleteItems_(all)
+	{
+		var deleteAll = all;
+
+		if(deleteAll)
+		{
+			var itemsToDelete = document.querySelectorAll("div.game-item");
+
+			for(var i = 0; i < itemsToDelete.length; i++)
+			{
+				itemWrapper_.removeChild(itemsToDelete[i]);
+			}
+		}
 		else
-			itemWrapperPlay_.appendChild(item);
+		{
+			var itemsToDelete = document.querySelectorAll("div.game-item.intro");
+
+			for(var i = 0; i < itemsToDelete.length; i++)
+			{
+				itemWrapper_.removeChild(itemsToDelete[i]);
+			}
+		}
 	}
 
 
@@ -93,30 +122,75 @@ function init()
 			items[i].addEventListener("click", function()
 			{
 				attr = event.currentTarget.dataset.itemId;
-				console.log(attr);
-
 				checkingArr_.push(attr);
+				checkingArr_.sort();
+
 				console.log(checkingArr_);
+
+				compareArr_(savedItems_, checkingArr_);
 			});
 		}
 	}
 
 
-	function constructGame_()
+	function compareArr_(arr1, arr2)
 	{
-		if(isPregame_)
+		isEqual_ = arr1.length == arr2.length && arr1.every(function(element, index)
 		{
-			getItemsFromArray_(itemCount_);
-			console.log(savedItems_);
-		}
-		else
+  			if(arr2.indexOf(element) > -1)
+  			{
+    			return element = arr2[arr2.indexOf(element)];
+ 	 		}
+		});
+
+		if(isEqual_)
 		{
-			getItemsFromArray_();
-			handleItemClick_();
+			console.log("end round");
+
+			nextRound_();
 		}
 	}
 
-	constructGame_();
+
+	function nextRound_()
+	{
+		console.log("new round");
+
+		savedItems_ = [];
+		checkingArr_ = [];
+		itemCount_++;
+		isPregame_ = true;
+
+		deleteItems_(true);
+		gameContainer_.classList.add("pregame");
+
+		game_();
+	}
+
+
+	function game_()
+	{
+		clearTimeout(pregameTimer_);
+
+		if(isPregame_)
+		{
+			getItemsFromArray_(itemCount_);
+
+			pregameTimer_ = setTimeout(function()
+			{
+				isPregame_ = false;
+				getItemsFromArray_();
+
+				deleteItems_(false);
+				gameContainer_.classList.remove("pregame");
+				handleItemClick_();
+				console.log(savedItems_);
+
+			}, pregameTimeout_);
+		}
+	}
+
+	game_();
 }
 
 window.onload = init;
